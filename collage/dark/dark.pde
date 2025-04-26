@@ -1,4 +1,4 @@
-eimport java.io.File;
+import java.io.File;
 
 ArrayList<PImage> sourceImages;
 ArrayList<Scrap> scraps;

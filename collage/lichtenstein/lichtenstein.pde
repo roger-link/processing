@@ -1,6 +1,11 @@
+import java.io.File;
+
 ArrayList<PImage> sourceImages;
 ArrayList<Scrap> scraps;
 int NUM_SCRAPS = 31000;
+
+boolean recording = false;
+int recordingFrame = 0;
 
 void setup() {
   size(1000, 800, P3D);
@@ -12,6 +17,8 @@ void setup() {
   for (int i = 0; i < NUM_SCRAPS; i++) {
     scraps.add(new Scrap());
   }
+
+  createFramesFolder();
 }
 
 void draw() {
@@ -20,6 +27,33 @@ void draw() {
   for (Scrap s : scraps) {
     s.update();
     s.display();
+  }
+
+  if (recording) {
+    saveFrame("frames/frame-####.png");
+    recordingFrame++;
+    if (recordingFrame > 1200) {  // ✨ 5 seconds at 60 fps
+      recording = false;
+      println("🛑 Auto-stopped after 5 seconds (300 frames).");
+    }
+  }
+}
+
+void keyPressed() {
+  if (key == 's' || key == 'S') {
+    saveFrame("collage-####.png");
+    println("📸 Saved still collage frame!");
+  }
+
+  if (key == 'r' || key == 'R') {
+    recording = true;
+    recordingFrame = 0;
+    println("🔴 Started recording frames!");
+  }
+
+  if (key == 'e' || key == 'E') {
+    recording = false;
+    println("🛑 Stopped recording manually.");
   }
 }
 
@@ -42,6 +76,13 @@ void loadSourceImages() {
     println("⚠️ No images found in /data!");
   } else {
     println("✅ Loaded", sourceImages.size(), "images.");
+  }
+}
+
+void createFramesFolder() {
+  File framesFolder = new File(sketchPath("frames"));
+  if (!framesFolder.exists()) {
+    framesFolder.mkdirs();
   }
 }
 
@@ -119,22 +160,22 @@ PImage createBlobMask(int w, int h) {
   pg.fill(255);
 
   pg.beginShape();
-  
+
   float x = w/2 + random(-w*0.2, w*0.2);
   float y = h/2 + random(-h*0.2, h*0.2);
-  
-  for (int i = 0; i < int(random(8, 20)); i++) {
+
+  for (int i = 0; i < int(random(10, 25)); i++) {
     float angle = random(TWO_PI);
-    float distance = random(w*0.2, w*0.5);
+    float distance = random(w*0.15, w*0.55);
     x += cos(angle) * distance;
     y += sin(angle) * distance;
     x = constrain(x, 0, w);
     y = constrain(y, 0, h);
     pg.vertex(x, y);
   }
-  
+
   pg.endShape(CLOSE);
   pg.endDraw();
-  
+
   return pg.get();
 }
